@@ -1,7 +1,7 @@
 OBJS	= main.o curveList.o distance.o randomnum.o hash.o gridcurves.o cluster.o kfunctions.o optimal_traversal.o pairsList.o binaryTree.o kmeans_initialization.o
 SOURCE	= main.cpp curveList.cpp distance.cpp randomnum.cpp hash.cpp gridcurves.cpp cluster.cpp kfunctions.cpp optimal_traversal.cpp pairsList.cpp binaryTree.cpp kmeans_initialization.cpp
 HEADER	= curve.h curveList.h distance.h randomnum.h hash.h gridcurves.h cluster.h kfunctions.h optimal_traversal.h dfd_res.h pairsList.h binaryTree.h kmeans_initialization.h
-OUT 	= kmeans
+OUT 	= proteins
 CC	= g++
 FLAGS	= -c -g
 
