@@ -7,6 +7,7 @@
 #include "binaryTree.h"
 #include "hash.h"
 #include "gridcurves.h"
+#include "crmsd.h"
 
 using namespace std;
 
@@ -42,7 +43,7 @@ void lloydAssignment(Curve curves[],int curveNum,Cluster clusters[],int clusterN
 			clusters[cluster].addPoint(curves[i]);
 		}
 	}
-	else{
+	else if(distance == 'f'){
 		for(i=0;i<curveNum;i++){
 			cluster = 0;
 			c = clusters[0].getCenter();
@@ -57,6 +58,9 @@ void lloydAssignment(Curve curves[],int curveNum,Cluster clusters[],int clusterN
 			}
 			clusters[cluster].addPoint(curves[i]);
 		}
+	}
+	else{
+		
 	}
 }
 
@@ -178,71 +182,74 @@ void pam(Cluster clusters[],int clusterNum,char distance){
 	double min,dist;
 	Curve temp,minCurve;
 	if(distance == 'f')
-	for(i=0;i<clusterNum;i++){
-		if(clusters[i].getCurveNumber() <= 0)
-			continue;
-		dist = 0;
-		temp = clusters[i].getCenter();
-		clusters[i].setCenter(clusters[i].getPoints()[0]);
-		clusters[i].setPoint(temp,0);
-		temp = clusters[i].getCenter();
-		for(k=0;k<clusters[i].getCurveNumber();k++){
-			dist += dfd(&(temp),&(clusters[i].getPoints()[k]));
-		}
-		min = dist;
-		minCurve = temp;
-		minIndex = 0;
-		for(j=1;j<clusters[i].getCurveNumber();j++){
-			//cout << "Cluster " << i << " swap " << j << endl;
+		for(i=0;i<clusterNum;i++){
+			if(clusters[i].getCurveNumber() <= 0)
+				continue;
 			dist = 0;
-			clusters[i].setCenter(clusters[i].getPoints()[j]);
-			clusters[i].setPoint(temp,j);
+			temp = clusters[i].getCenter();
+			clusters[i].setCenter(clusters[i].getPoints()[0]);
+			clusters[i].setPoint(temp,0);
 			temp = clusters[i].getCenter();
 			for(k=0;k<clusters[i].getCurveNumber();k++){
 				dist += dfd(&(temp),&(clusters[i].getPoints()[k]));
 			}
-			if(dist < min){
-				min = dist;
-				minCurve = temp;
-				minIndex = k;
+			min = dist;
+			minCurve = temp;
+			minIndex = 0;
+			for(j=1;j<clusters[i].getCurveNumber();j++){
+				//cout << "Cluster " << i << " swap " << j << endl;
+				dist = 0;
+				clusters[i].setCenter(clusters[i].getPoints()[j]);
+				clusters[i].setPoint(temp,j);
+				temp = clusters[i].getCenter();
+				for(k=0;k<clusters[i].getCurveNumber();k++){
+					dist += dfd(&(temp),&(clusters[i].getPoints()[k]));
+				}
+				if(dist < min){
+					min = dist;
+					minCurve = temp;
+					minIndex = k;
+				}
 			}
+			//cout << "Cluster " << i << " updated" << endl;
+			clusters[i].setCenter(minCurve);
+			clusters[i].setPoint(temp,minIndex);
 		}
-		//cout << "Cluster " << i << " updated" << endl;
-		clusters[i].setCenter(minCurve);
-		clusters[i].setPoint(temp,minIndex);
-	}
-	else
-	for(i=0;i<clusterNum;i++){
-		if(clusters[i].getCurveNumber() <= 0)
-			continue;
-		dist = 0;
-		temp = clusters[i].getCenter();
-		clusters[i].setCenter(clusters[i].getPoints()[0]);
-		clusters[i].setPoint(temp,0);
-		temp = clusters[i].getCenter();
-		for(k=0;k<clusters[i].getCurveNumber();k++){
-			dist += dtw(&(temp),&(clusters[i].getPoints()[k]));
-		}
-		min = dist;
-		minCurve = temp;
-		minIndex = 0;
-		for(j=1;j<clusters[i].getCurveNumber();j++){
-			//cout << "Cluster " << i << " swap " << j << endl;
+	else if(distance == 'd')
+		for(i=0;i<clusterNum;i++){
+			if(clusters[i].getCurveNumber() <= 0)
+				continue;
 			dist = 0;
-			clusters[i].setCenter(clusters[i].getPoints()[j]);
-			clusters[i].setPoint(temp,j);
+			temp = clusters[i].getCenter();
+			clusters[i].setCenter(clusters[i].getPoints()[0]);
+			clusters[i].setPoint(temp,0);
 			temp = clusters[i].getCenter();
 			for(k=0;k<clusters[i].getCurveNumber();k++){
 				dist += dtw(&(temp),&(clusters[i].getPoints()[k]));
 			}
-			if(dist < min){
-				min = dist;
-				minCurve = temp;
-				minIndex = k;
+			min = dist;
+			minCurve = temp;
+			minIndex = 0;
+			for(j=1;j<clusters[i].getCurveNumber();j++){
+				//cout << "Cluster " << i << " swap " << j << endl;
+				dist = 0;
+				clusters[i].setCenter(clusters[i].getPoints()[j]);
+				clusters[i].setPoint(temp,j);
+				temp = clusters[i].getCenter();
+				for(k=0;k<clusters[i].getCurveNumber();k++){
+					dist += dtw(&(temp),&(clusters[i].getPoints()[k]));
+				}
+				if(dist < min){
+					min = dist;
+					minCurve = temp;
+					minIndex = k;
+				}
 			}
+			//cout << "Cluster " << i << " updated" << endl;
+			clusters[i].setCenter(minCurve);
+			clusters[i].setPoint(temp,minIndex);
 		}
-		//cout << "Cluster " << i << " updated" << endl;
-		clusters[i].setCenter(minCurve);
-		clusters[i].setPoint(temp,minIndex);
+	else{
+		
 	}
 }

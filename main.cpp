@@ -21,15 +21,22 @@ using namespace std;
 int main(int argc, char** argv){
 	ifstream input;
 	ofstream output;
-	int numConform,n,dimension=3,i,j;
+	int numConform,n,dimension=3,i,j,k=2;
+	int clusters = 5,changes;
 	stringstream ss;
 	Curve c;
 	CurveList mylist;
+	Cluster* clusterArray;
 	Curve* curveArray;
+	string* oldCenters;
+	Curve* oldCurves;
+	Curve* clusterPoints;
 
 	input.open("bio_small_input.dat");
+	output.open("crmsd.dat");
+	
 
-	if(input.fail()){
+	if(input.fail() || output.fail()){
 		cerr << "Error opening file" << endl;
 		return 1;
 	}
@@ -53,8 +60,40 @@ int main(int argc, char** argv){
 	for(i=0;i<numConform;i++)
 		curveArray[i] = mylist.remove();
 	
+	oldCenters = new string[clusters];
+	oldCurves = new Curve[clusters];
+	
+	changes = clusters;
+	cout << "Random-LLoyd-PAM" << endl;
+	randomK(curveArray,n,clusterArray,clusters);
+	lloydAssignment(curveArray,n,clusterArray,clusters,'c');
+	for(i=0;i<clusters;i++){
+			oldCenters[i] = clusterArray[i].getCenter().id;
+	}
+	while(changes > 0){
+		changes = 0;
+		pam(clusterArray,clusters,'c');
+		for(i=0;i<clusters;i++){
+			if(clusterArray[i].getCenter().id != oldCenters[i])
+				changes++;
+			oldCenters[i] = clusterArray[i].getCenter().id;
+		}
+		cout << changes << endl;
+		if(changes > 0)
+			lloydAssignment(curveArray,n,clusterArray,clusters,'c');
+	}
+	output << "k: " << clusters << endl;
+	for(i=0;i<clusters;i++){
+		clusterPoints = clusterArray[i].getPoints();
+		for(j=0;j<clusterArray[i].getCurveNumber();j++)
+			output << clusterPoints[j].id << "\t";
+		output << endl;
+	}
+	
 	for(i=0;i<numConform;i++)
 		curvePrint(curveArray[i]);
+	
+	
 
 	for(i=0;i<numConform;i++){
 		for(j=0;j<curveArray[i].m;j++)
