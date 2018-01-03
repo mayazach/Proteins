@@ -1,6 +1,6 @@
 #ifndef CRMSD
 #define CRMSD
 
-double crmsd(Curve* a,Curve* b);
+double crmsd(Curve a,Curve b);
 
 #endif

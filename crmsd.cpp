@@ -131,8 +131,8 @@ double crmsd(Curve a,Curve b)
    q=svd.matrixU()*svd.matrixV().transpose();
    double det=q.determinant();
    
-   //cout<<"q="<<q<<"\n";
-   //cout<<"det="<<det<<"\n";
+   cout<<"q="<<q<<"\n";
+   cout<<"det="<<det<<"\n";
 
    /*umd->U modified*/
    MatrixXd umd(dim,dim);
