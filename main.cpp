@@ -20,7 +20,7 @@ using namespace std;
 
 int main(int argc, char** argv){
 	ifstream input;
-	ofstream output;
+	ofstream output,frechet;
 	int numConform,n,dimension=3,i,j,k=2;
 	int clusters = 5,changes;
 	stringstream ss;
@@ -34,9 +34,10 @@ int main(int argc, char** argv){
 
 	input.open("bio_small_input.dat");
 	output.open("crmsd.dat");
+	frechet.open("frechet.dat");
 	
 
-	if(input.fail() || output.fail()){
+	if(input.fail() || output.fail() || frechet.fail()){
 		cerr << "Error opening file" << endl;
 		return 1;
 	}
@@ -62,9 +63,15 @@ int main(int argc, char** argv){
 	
 	oldCenters = new string[clusters];
 	oldCurves = new Curve[clusters];
-	
+
+	clusterArray = new Cluster[clusters];
+	for(i=0;i<clusters;i++){
+		clusterArray[i].setId(i);
+		clusterArray[i].initArray(numConform);
+	}
+	/*
 	changes = clusters;
-	cout << "Random-LLoyd-PAM" << endl;
+	cout << "c-RMSD clustering" << endl;
 	randomK(curveArray,n,clusterArray,clusters);
 	lloydAssignment(curveArray,n,clusterArray,clusters,'c');
 	for(i=0;i<clusters;i++){
@@ -89,17 +96,43 @@ int main(int argc, char** argv){
 			output << clusterPoints[j].id << "\t";
 		output << endl;
 	}
-	
-	for(i=0;i<numConform;i++)
-		curvePrint(curveArray[i]);
-	
-	
+	*/
+	changes = clusters;
+	cout << "Frechet distance clustering" << endl;
+	randomK(curveArray,numConform,clusterArray,clusters);
+	lloydAssignment(curveArray,numConform,clusterArray,clusters,'r');
+	for(i=0;i<clusters;i++){
+			oldCenters[i] = clusterArray[i].getCenter().id;
+	}
+	while(changes > 0){
+		changes = 0;
+		pam(clusterArray,clusters,'r');
+		for(i=0;i<clusters;i++){
+			if(clusterArray[i].getCenter().id != oldCenters[i])
+				changes++;
+			oldCenters[i] = clusterArray[i].getCenter().id;
+		}
+		cout << changes << endl;
+		if(changes > 0)
+			lloydAssignment(curveArray,numConform,clusterArray,clusters,'r');
+	}
+	for(i=0;i<clusters;i++){
+		frechet << "k: " << i << endl;
+		clusterPoints = clusterArray[i].getPoints();
+		for(j=0;j<clusterArray[i].getCurveNumber();j++)
+			frechet << clusterPoints[j].id << "\t";
+		frechet << endl;
+	}
+
 
 	for(i=0;i<numConform;i++){
 		for(j=0;j<curveArray[i].m;j++)
 			delete [] curveArray[i].points[j];
 		delete [] curveArray[i].points;
 	}
+	delete [] clusterArray;
 	delete [] curveArray;
 	input.close();
+	output.close();
+	frechet.close();
 }

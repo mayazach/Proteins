@@ -95,5 +95,13 @@ double result;
 
 
   result=crmsd(p,q);
+  result = cfrechet(p,q);
+
+  for(i=0;i<(q.m);i++)
+     delete [] q.points[i];
+  delete [] q.points;
+  for(i=0;i<(p.m);i++)
+     delete [] p.points[i];
+  delete [] p.points;
 
 }

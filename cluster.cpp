@@ -64,7 +64,7 @@ void Cluster::addPoint(Curve point){
 void Cluster::print(){
 	int i;
 	cout << "Cluster: " << this->id << endl;
-	cout << "Center: " << endl;
+	cout << "Center: " << this->center.id << endl;
 	for(i=0;i<curveNumber;i++)
 		curvePrint(this->points[i]);
 }
