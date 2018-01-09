@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstdlib> 
 #include <ctime> 
+#include <sstream>
 #include "curve.h"
 #include "cluster.h"
 #include "distance.h"
@@ -19,9 +20,10 @@ void randomK(Curve curves[],int curveNum,Cluster clusters[],int clusterNum){
 	}
 }
 
-void lloydAssignment(Curve curves[],int curveNum,Cluster clusters[],int clusterNum,char distance){
+void lloydAssignment(Curve curves[],int curveNum,Cluster clusters[],int clusterNum,char distance,double distances[]){
 	int i,j,cluster;
 	double min,temp;
+	stringstream ss;
 	Curve c;
 	for(i=0;i<clusterNum;i++)
 		clusters[i].setCurveNumber(0);
@@ -63,13 +65,52 @@ void lloydAssignment(Curve curves[],int curveNum,Cluster clusters[],int clusterN
 		
 	}
 	else{
+		int a,b,position;
 		for(i=0;i<curveNum;i++){
 			cluster = 0;
 			c = clusters[0].getCenter();
-			min = cfrechet(curves[i],c);
+			ss.str("");
+			ss << c.id;
+			ss >> a;
+			ss.clear();
+			ss.str("");
+			ss << curves[i].id;
+			ss >> b;
+			ss.clear();
+			if(a == b)
+				min = 0;
+			else if(a<b){
+				position = arprog(curveNum) - arprog(curveNum - a) + b - a - 1;
+				if(distances[position] == -1)
+					distances[position] = cfrechet(curves[i],c);
+				min = distances[position];
+			}
+			else{
+				position = arprog(curveNum) - arprog(curveNum - b) + a - b - 1;
+				if(distances[position] == -1)
+					distances[position] = cfrechet(curves[i],c);
+				min = distances[position];
+			}
 			for(j=1;j<clusterNum;j++){
 				c = clusters[j].getCenter();
-				temp = cfrechet(curves[i],c);
+				ss.str("");
+				ss << c.id;
+				ss >> a;
+				ss.clear();
+				if(a == b)
+					temp = 0;
+				else if(a<b){
+					position = arprog(curveNum) - arprog(curveNum - a) + b - a - 1;
+					if(distances[position] == -1)
+						distances[position] = cfrechet(curves[i],c);
+					temp = distances[position];
+				}
+				else{
+					position = arprog(curveNum) - arprog(curveNum - b) + a - b - 1;
+					if(distances[position] == -1)
+						distances[position] = cfrechet(curves[i],c);
+					temp = distances[position];
+				}
 				if(temp < min){
 					min = temp;
 					cluster = j;
@@ -193,9 +234,10 @@ Curve meanFrechet(Curve curves[],int curveNum){
 	return mytree.meanFrechet();
 }
 
-void pam(Cluster clusters[],int clusterNum,char distance){
+void pam(Cluster clusters[],int clusterNum,char distance,double distances[],int curveNum){
 	int i,j,k,minIndex;
 	double min,dist;
+	stringstream ss;
 	Curve temp,minCurve;
 	if(distance == 'f')
 		for(i=0;i<clusterNum;i++){
@@ -269,6 +311,7 @@ void pam(Cluster clusters[],int clusterNum,char distance){
 		
 	}
 	else{
+		int a,b,position;
 		for(i=0;i<clusterNum;i++){
 			if(clusters[i].getCurveNumber() <= 0)
 				continue;
@@ -277,8 +320,29 @@ void pam(Cluster clusters[],int clusterNum,char distance){
 			clusters[i].setCenter(clusters[i].getPoints()[0]);
 			clusters[i].setPoint(temp,0);
 			temp = clusters[i].getCenter();
+			ss.str("");
+			ss << temp.id;
+			ss >> a;
+			ss.clear();
 			for(k=0;k<clusters[i].getCurveNumber();k++){
-				dist += cfrechet(temp,clusters[i].getPoints()[k]);
+				ss.str("");
+				ss << clusters[i].getPoints()[k].id;;
+				ss >> b;
+				ss.clear();
+				if(a == b)
+					dist += 0;
+				else if(a<b){
+					position = arprog(curveNum) - arprog(curveNum - a) + b - a - 1;
+					if(distances[position] == -1)
+						distances[position] = cfrechet(temp,clusters[i].getPoints()[k]);
+					dist += distances[position];
+				}
+				else{
+					position = arprog(curveNum) - arprog(curveNum - b) + a - b - 1;
+					if(distances[position] == -1)
+						distances[position] = cfrechet(temp,clusters[i].getPoints()[k]);
+					dist += distances[position];
+				}
 			}
 			min = dist;
 			minCurve = temp;
@@ -289,8 +353,29 @@ void pam(Cluster clusters[],int clusterNum,char distance){
 				clusters[i].setCenter(clusters[i].getPoints()[j]);
 				clusters[i].setPoint(temp,j);
 				temp = clusters[i].getCenter();
+				ss.str("");
+				ss << temp.id;
+				ss >> a;
+				ss.clear();
 				for(k=0;k<clusters[i].getCurveNumber();k++){
-					dist += cfrechet(temp,clusters[i].getPoints()[k]);
+					ss.str("");
+					ss << clusters[i].getPoints()[k].id;;
+					ss >> b;
+					ss.clear();
+					if(a == b)
+						dist += 0;
+					else if(a<b){
+						position = arprog(curveNum) - arprog(curveNum - a) + b - a - 1;
+						if(distances[position] == -1)
+							distances[position] = cfrechet(temp,clusters[i].getPoints()[k]);
+						dist += distances[position];
+					}
+					else{
+						position = arprog(curveNum) - arprog(curveNum - b) + a - b - 1;
+						if(distances[position] == -1)
+							distances[position] = cfrechet(temp,clusters[i].getPoints()[k]);
+						dist += distances[position];
+					}
 				}
 				if(dist < min){
 					min = dist;

@@ -21,8 +21,9 @@ using namespace std;
 int main(int argc, char** argv){
 	ifstream input;
 	ofstream output,frechet;
-	int numConform,n,dimension=3,i,j,k=2;
+	int numConform,n,dimension=3,i,j,k=2,size;
 	int clusters = 5,changes;
+	double* distances;
 	stringstream ss;
 	Curve c;
 	CurveList mylist;
@@ -41,7 +42,14 @@ int main(int argc, char** argv){
 		cerr << "Error opening file" << endl;
 		return 1;
 	}
+	cout << arprog(5) << endl;
+	cout << arprog(12) << endl;
 	input >> numConform >> n;
+	size = arprog(numConform);
+	distances = new double[size];
+	cout << size << endl;
+	for(i=0;i<size;i++)
+		distances[i] = -1;
 	c.dimension = 3;
 	c.m = n;
 	for(i=0;i<numConform;i++){
@@ -100,13 +108,13 @@ int main(int argc, char** argv){
 	changes = clusters;
 	cout << "Frechet distance clustering" << endl;
 	randomK(curveArray,numConform,clusterArray,clusters);
-	lloydAssignment(curveArray,numConform,clusterArray,clusters,'r');
+	lloydAssignment(curveArray,numConform,clusterArray,clusters,'r',distances);
 	for(i=0;i<clusters;i++){
 			oldCenters[i] = clusterArray[i].getCenter().id;
 	}
 	while(changes > 0){
 		changes = 0;
-		pam(clusterArray,clusters,'r');
+		pam(clusterArray,clusters,'r',distances,numConform);
 		for(i=0;i<clusters;i++){
 			if(clusterArray[i].getCenter().id != oldCenters[i])
 				changes++;
@@ -114,7 +122,7 @@ int main(int argc, char** argv){
 		}
 		cout << changes << endl;
 		if(changes > 0)
-			lloydAssignment(curveArray,numConform,clusterArray,clusters,'r');
+			lloydAssignment(curveArray,numConform,clusterArray,clusters,'r',distances);
 	}
 	for(i=0;i<clusters;i++){
 		frechet << "k: " << i << endl;
@@ -124,7 +132,7 @@ int main(int argc, char** argv){
 		frechet << endl;
 	}
 
-
+	delete [] distances;
 	for(i=0;i<numConform;i++){
 		for(j=0;j<curveArray[i].m;j++)
 			delete [] curveArray[i].points[j];

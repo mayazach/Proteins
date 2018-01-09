@@ -20,6 +20,13 @@ double euclidean(double* p,double* q,int dim){
 	return d;
 }
 
+int arprog(int a){
+	if(a%2 == 0)
+		return ((1+a)*a/2);
+	else
+		return ((1+(a-1))*(a-1)/2 + a);
+}
+
 double dfd(Curve* p,Curve* q){
 	int m1=p->m;
 	int m2=q->m;
