@@ -95,7 +95,9 @@ double result;
 
 
   result=crmsd(p,q);
+  cout<<"crmsd result="<<result<<"\n";
   result = cfrechet(p,q);
+  cout<<"cfrechet result="<<result<<"\n";
 
   for(i=0;i<(q.m);i++)
      delete [] q.points[i];

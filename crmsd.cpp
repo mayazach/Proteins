@@ -1,9 +1,11 @@
 #include<iostream>
+#include <cmath>
 #include <Eigen/Dense>
 #include<Eigen/SVD>
 #include"curve.h"
 #include "crmsd.h"
 #include "distance.h"
+
 
 using namespace std;
 using namespace Eigen;
@@ -38,7 +40,7 @@ double crmsd(Curve a,Curve b){
    {  
       for(j=0;j<dim;j++)
       {  
-         cout<<"x["<<i<<"]"<<"["<<j<<"]"<<"\n";
+         /*cout<<"x["<<i<<"]"<<"["<<j<<"]"<<"\n";*/
          x(i,j)=a.points[i][j];   
       
       }
@@ -53,8 +55,8 @@ double crmsd(Curve a,Curve b){
 
    }
    //cout<<"first n points of curves\n";
-   cout<<"x="<<x<<"\n";
-   cout<<"y="<<y<<"\n";
+   /*cout<<"x="<<x<<"\n";
+   cout<<"y="<<y<<"\n";*/
 
    MatrixXd mult(1,n);
    /*mult << 1, 1;*/
@@ -133,8 +135,8 @@ double crmsd(Curve a,Curve b){
    q=svd.matrixU()*svd.matrixV().transpose();
    double det=q.determinant();
    
-   cout<<"q="<<q<<"\n";
-   cout<<"det="<<det<<"\n";
+   /*cout<<"q="<<q<<"\n";
+   cout<<"det="<<det<<"\n";*/
 
    /*umd->U modified*/
    MatrixXd umd(dim,dim);
@@ -163,8 +165,24 @@ double crmsd(Curve a,Curve b){
      q=umd*svd.matrixV().transpose();
 
    }
+   
    //cout<<"Its left singular vectors are the columns of the thin U matrix:(modified if det<0)\n"<<umd<<"\n";
-   return 2;
+   
+   
+
+   MatrixXd temp(n,dim);
+   MatrixXd temp1(n,dim);
+   temp=x*q;
+   temp1=temp-y;
+   /*cout<<"temp1="<<temp1<<"\n";*/
+   result=temp1.norm();
+   result=result/sqrt(n);
+   /*cout<<"crmsd result="<<result<<"\n";*/
+   
+
+
+   return result;
+   /*return 2;*/
 }
 
 double cfrechet(Curve a,Curve b){
