@@ -62,7 +62,59 @@ void lloydAssignment(Curve curves[],int curveNum,Cluster clusters[],int clusterN
 		}
 	}
 	else if(distance == 'c'){
-		
+		int a,b,position;
+		for(i=0;i<curveNum;i++){
+			cluster = 0;
+			c = clusters[0].getCenter();
+			ss.str("");
+			ss << c.id;
+			ss >> a;
+			ss.clear();
+			ss.str("");
+			ss << curves[i].id;
+			ss >> b;
+			ss.clear();
+			if(a == b)
+				min = 0;
+			else if(a<b){
+				position = arprog(curveNum) - arprog(curveNum - a) + b - a - 1;
+				if(distances[position] == -1)
+					distances[position] = crmsd(curves[i],c);
+				min = distances[position];
+			}
+			else{
+				position = arprog(curveNum) - arprog(curveNum - b) + a - b - 1;
+				if(distances[position] == -1)
+					distances[position] = crmsd(curves[i],c);
+				min = distances[position];
+			}
+			for(j=1;j<clusterNum;j++){
+				c = clusters[j].getCenter();
+				ss.str("");
+				ss << c.id;
+				ss >> a;
+				ss.clear();
+				if(a == b)
+					temp = 0;
+				else if(a<b){
+					position = arprog(curveNum) - arprog(curveNum - a) + b - a - 1;
+					if(distances[position] == -1)
+						distances[position] = crmsd(curves[i],c);
+					temp = distances[position];
+				}
+				else{
+					position = arprog(curveNum) - arprog(curveNum - b) + a - b - 1;
+					if(distances[position] == -1)
+						distances[position] = crmsd(curves[i],c);
+					temp = distances[position];
+				}
+				if(temp < min){
+					min = temp;
+					cluster = j;
+				}
+			}
+			clusters[cluster].addPoint(curves[i]);
+		}
 	}
 	else{
 		int a,b,position;
@@ -308,7 +360,82 @@ void pam(Cluster clusters[],int clusterNum,char distance,double distances[],int 
 			clusters[i].setPoint(temp,minIndex);
 		}
 	else if(distance == 'c'){
-		
+		int a,b,position;
+		for(i=0;i<clusterNum;i++){
+			if(clusters[i].getCurveNumber() <= 0)
+				continue;
+			dist = 0;
+			temp = clusters[i].getCenter();
+			clusters[i].setCenter(clusters[i].getPoints()[0]);
+			clusters[i].setPoint(temp,0);
+			temp = clusters[i].getCenter();
+			ss.str("");
+			ss << temp.id;
+			ss >> a;
+			ss.clear();
+			for(k=0;k<clusters[i].getCurveNumber();k++){
+				ss.str("");
+				ss << clusters[i].getPoints()[k].id;;
+				ss >> b;
+				ss.clear();
+				if(a == b)
+					dist += 0;
+				else if(a<b){
+					position = arprog(curveNum) - arprog(curveNum - a) + b - a - 1;
+					if(distances[position] == -1)
+						distances[position] = crmsd(temp,clusters[i].getPoints()[k]);
+					dist += distances[position];
+				}
+				else{
+					position = arprog(curveNum) - arprog(curveNum - b) + a - b - 1;
+					if(distances[position] == -1)
+						distances[position] = crmsd(temp,clusters[i].getPoints()[k]);
+					dist += distances[position];
+				}
+			}
+			min = dist;
+			minCurve = temp;
+			minIndex = 0;
+			for(j=1;j<clusters[i].getCurveNumber();j++){
+				//cout << "Cluster " << i << " swap " << j << endl;
+				dist = 0;
+				clusters[i].setCenter(clusters[i].getPoints()[j]);
+				clusters[i].setPoint(temp,j);
+				temp = clusters[i].getCenter();
+				ss.str("");
+				ss << temp.id;
+				ss >> a;
+				ss.clear();
+				for(k=0;k<clusters[i].getCurveNumber();k++){
+					ss.str("");
+					ss << clusters[i].getPoints()[k].id;;
+					ss >> b;
+					ss.clear();
+					if(a == b)
+						dist += 0;
+					else if(a<b){
+						position = arprog(curveNum) - arprog(curveNum - a) + b - a - 1;
+						if(distances[position] == -1)
+							distances[position] = crmsd(temp,clusters[i].getPoints()[k]);
+						dist += distances[position];
+					}
+					else{
+						position = arprog(curveNum) - arprog(curveNum - b) + a - b - 1;
+						if(distances[position] == -1)
+							distances[position] = crmsd(temp,clusters[i].getPoints()[k]);
+						dist += distances[position];
+					}
+				}
+				if(dist < min){
+					min = dist;
+					minCurve = temp;
+					minIndex = k;
+				}
+			}
+			//cout << "Cluster " << i << " updated" << endl;
+			clusters[i].setCenter(minCurve);
+			clusters[i].setPoint(temp,minIndex);
+		}
 	}
 	else{
 		int a,b,position;

@@ -1,6 +1,6 @@
-OBJS	= main.o curveList.o distance.o randomnum.o hash.o gridcurves.o cluster.o kfunctions.o optimal_traversal.o pairsList.o binaryTree.o kmeans_initialization.o crmsd.o
-SOURCE	= main.cpp curveList.cpp distance.cpp randomnum.cpp hash.cpp gridcurves.cpp cluster.cpp kfunctions.cpp optimal_traversal.cpp pairsList.cpp binaryTree.cpp kmeans_initialization.cpp crmsd.cpp
-HEADER	= curve.h curveList.h distance.h randomnum.h hash.h gridcurves.h cluster.h kfunctions.h optimal_traversal.h dfd_res.h pairsList.h binaryTree.h kmeans_initialization.h crmsd.h
+OBJS	= main.o curveList.o distance.o randomnum.o hash.o gridcurves.o cluster.o kfunctions.o optimal_traversal.o pairsList.o binaryTree.o kmeans_initialization.o crmsd.o silhouette.o
+SOURCE	= main.cpp curveList.cpp distance.cpp randomnum.cpp hash.cpp gridcurves.cpp cluster.cpp kfunctions.cpp optimal_traversal.cpp pairsList.cpp binaryTree.cpp kmeans_initialization.cpp crmsd.cpp silhouette.cpp
+HEADER	= curve.h curveList.h distance.h randomnum.h hash.h gridcurves.h cluster.h kfunctions.h optimal_traversal.h dfd_res.h pairsList.h binaryTree.h kmeans_initialization.h crmsd.h silhouette.h
 OUT 	= proteins
 CC	= g++
 FLAGS	= -c -g
@@ -46,6 +46,9 @@ binaryTree.o: binaryTree.cpp
 
 kmeans_initialization.o: kmeans_initialization.cpp
 	$(CC) $(FLAGS) kmeans_initialization.cpp
+
+silhouette.o: silhouette.cpp
+	$(CC) $(FLAGS) silhouette.cpp
 	
 clean:
 	rm -f $(OBJS)

@@ -15,6 +15,7 @@
 #include "kfunctions.h"
 #include "kmeans_initialization.h"
 #include "binaryTree.h"
+#include "silhouette.h"
 
 using namespace std;
 
@@ -32,7 +33,8 @@ int main(int argc, char** argv){
 	string* oldCenters;
 	Curve* oldCurves;
 	Curve* clusterPoints;
-
+	double* silhouettes;
+	
 	input.open("bio_small_input.dat");
 	output.open("crmsd.dat");
 	frechet.open("frechet.dat");
@@ -77,17 +79,17 @@ int main(int argc, char** argv){
 		clusterArray[i].setId(i);
 		clusterArray[i].initArray(numConform);
 	}
-	/*
+	
 	changes = clusters;
 	cout << "c-RMSD clustering" << endl;
-	randomK(curveArray,n,clusterArray,clusters);
-	lloydAssignment(curveArray,n,clusterArray,clusters,'c');
+	randomK(curveArray,numConform,clusterArray,clusters);
+	lloydAssignment(curveArray,numConform,clusterArray,clusters,'c',distances);
 	for(i=0;i<clusters;i++){
 			oldCenters[i] = clusterArray[i].getCenter().id;
 	}
 	while(changes > 0){
 		changes = 0;
-		pam(clusterArray,clusters,'c');
+		pam(clusterArray,clusters,'c',distances,numConform);
 		for(i=0;i<clusters;i++){
 			if(clusterArray[i].getCenter().id != oldCenters[i])
 				changes++;
@@ -95,16 +97,21 @@ int main(int argc, char** argv){
 		}
 		cout << changes << endl;
 		if(changes > 0)
-			lloydAssignment(curveArray,n,clusterArray,clusters,'c');
+			lloydAssignment(curveArray,numConform,clusterArray,clusters,'c',distances);
 	}
 	output << "k: " << clusters << endl;
+	silhouettes = dfd_silhouette(clusterArray,clusters,distances,numConform,'c');
+	output << "s: " << silhouettes[clusters] << endl;
 	for(i=0;i<clusters;i++){
 		clusterPoints = clusterArray[i].getPoints();
 		for(j=0;j<clusterArray[i].getCurveNumber();j++)
 			output << clusterPoints[j].id << "\t";
 		output << endl;
 	}
-	*/
+	
+	for(i=0;i<size;i++)
+		distances[i] = -1;
+	
 	changes = clusters;
 	cout << "Frechet distance clustering" << endl;
 	randomK(curveArray,numConform,clusterArray,clusters);
@@ -124,8 +131,10 @@ int main(int argc, char** argv){
 		if(changes > 0)
 			lloydAssignment(curveArray,numConform,clusterArray,clusters,'r',distances);
 	}
+	frechet << "k: " << i << endl;
+	silhouettes = dfd_silhouette(clusterArray,clusters,distances,numConform,'r');
+	frechet << "s: " << silhouettes[clusters] << endl;
 	for(i=0;i<clusters;i++){
-		frechet << "k: " << i << endl;
 		clusterPoints = clusterArray[i].getPoints();
 		for(j=0;j<clusterArray[i].getCurveNumber();j++)
 			frechet << clusterPoints[j].id << "\t";
